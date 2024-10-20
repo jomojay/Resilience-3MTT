@@ -1,0 +1,13 @@
+{
+  "name": "log-analyzer",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "concurrently \"npm run frontend\" \"npm run backend\"",
+    "frontend": "cd frontend && npm start",
+    "backend": "cd backend && python3 app.py"
+  },
+  "devDependencies": {
+    "concurrently": "^7.6.0"
+  }
+}
