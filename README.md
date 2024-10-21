@@ -4,7 +4,7 @@
 
 ## Requirements
 
-+ Pls don't for get to install the required dependencies in `log-analyzer`, `backend` and `frontend`. Check ##Installation for details.
++ Pls don't forget to install the required dependencies in `log-analyzer`, `backend` and `frontend`. Check ##Installation for details.
 
 
 ### Applications
