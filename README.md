@@ -41,8 +41,8 @@
 
 ## Authors
 + Shomoye Jamiu - [Github](https://github.com/jomojay) / [X](https://twitter.com/jassmenn16)
++ Stephen Adeniji - [Github](https://github.com/Praizee) / [X](https://x.com/steve_ade1407) 
 + 
-
 
 ## License
 + Public Domain. No copy write protection.
