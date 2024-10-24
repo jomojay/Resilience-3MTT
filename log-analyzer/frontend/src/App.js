@@ -1,42 +1,52 @@
 // frontend/src/App.tsx
+
 import React, { useState } from "react";
 import axios from "axios";
 import { Button, Container, Form, Row, Col, Alert } from "react-bootstrap";
-import ChartComponent from "./ChartComponent"; // Ensure you have the correct path
+import ChartComponent from "./ChartComponent";
+
 
 const App = () => {
-  const [logData, setLogData] = useState("");
+  const [file, setFile] = useState(null);
   const [analysisResult, setAnalysisResult] = useState("");
   const [chartData, setChartData] = useState(null);
+  const [chartType, setChartType] = useState("bar"); // Default chart type
 
-  const handleLogDataChange = (e) => {
-    setLogData(e.target.value);
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
   };
 
-  const analyzeLogs = async () => {
-    try {
-      const response = await axios.post("http://localhost:5000/analyze", {
-        logs: logData,
-      });
-      setAnalysisResult(response.data.analysis);
+  const uploadAndAnalyzeLogs = async () => {
+    const formData = new FormData();
+    formData.append("file", file);
 
-      // Assuming the analysis result contains data for the chart
-      // You need to format this data to be compatible with Chart.js
+    try {
+      const response = await axios.post("http://localhost:5000/upload_logs", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      // Set analysis result and chart data
+      setAnalysisResult(response.data.insights);
+
+      // Assuming the response contains data for the chart
       const formattedData = {
-        labels: response.data.chartLabels, // Adjust as per your API response
+        labels: response.data.anomalies.map(item => item.event_type || item.timestamp),
         datasets: [
           {
-            label: "Analysis Result",
-            data: response.data.chartData, // Adjust as per your API response
-            backgroundColor: "rgba(75, 192, 192, 0.6)",
-            borderColor: "rgba(75, 192, 192, 1)",
+            label: "Anomaly Count",
+            data: response.data.anomalies.map(item => item.count),
+            backgroundColor: "rgba(255, 99, 132, 0.6)",
+            borderColor: "rgba(255, 99, 132, 1)",
             borderWidth: 1,
           },
         ],
       };
-      setChartData(formattedData); // Set the formatted chart data
+      setChartData(formattedData);
+
     } catch (error) {
-      console.error("Error analyzing logs:", error);
+      console.error("Error uploading and analyzing logs:", error);
       setAnalysisResult("Failed to analyze logs.");
     }
   };
@@ -45,21 +55,16 @@ const App = () => {
     <Container className="mt-5">
       <Row className="justify-content-center">
         <Col md={8}>
-          <h1 className="text-center mb-4">Resilience-3MTT Log Analyzer</h1>
-          <Form.Group controlId="logData">
-            <Form.Label>Paste your log data here:</Form.Label>
-            <Form.Control
-              as="textarea"
-              rows={10}
-              value={logData}
-              onChange={handleLogDataChange}
-              placeholder="Enter log data..."
-            />
+          <h1 className="text-center mb-4">Log Analyzer</h1>
+
+          <Form.Group controlId="logFile">
+            <Form.Label>Select a log file:</Form.Label>
+            <Form.Control type="file" onChange={handleFileChange} />
           </Form.Group>
 
           <div className="text-center mt-4">
-            <Button variant="primary" onClick={analyzeLogs}>
-              Analyze Logs
+            <Button variant="primary" onClick={uploadAndAnalyzeLogs}>
+              Upload & Analyze Logs
             </Button>
           </div>
 
@@ -72,10 +77,9 @@ const App = () => {
             )}
           </div>
 
-          {/* Render the chart only if chartData is available */}
           {chartData && (
-            <div className="mt-5">
-              <ChartComponent data={chartData} />
+            <div className="mt-5" style={{ height: "400px" }}>
+              <ChartComponent data={chartData} type={chartType} />
             </div>
           )}
         </Col>

@@ -1,8 +1,9 @@
 // ChartComponent.js
+
 import React, { useEffect, useRef } from 'react';
 import { Chart, registerables } from 'chart.js';
 
-const ChartComponent = ({ data }) => {
+const ChartComponent = ({ data, type = 'bar' }) => {
   const chartRef = useRef();
 
   useEffect(() => {
@@ -10,10 +11,41 @@ const ChartComponent = ({ data }) => {
 
     const ctx = chartRef.current.getContext('2d');
     const chartInstance = new Chart(ctx, {
-      type: 'bar', // or 'line', 'pie', etc.
+      type: type, // Use the type passed as a prop, defaults to 'bar'
       data: data,
       options: {
-        // your chart options
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Event Type / Timestamp'
+            },
+          },
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Count'
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top',
+          },
+          tooltip: {
+            callbacks: {
+              // Customize the tooltip to display additional info
+              label: (tooltipItem) => {
+                return `${tooltipItem.dataset.label}: ${tooltipItem.parsed.y}`;
+              }
+            }
+          }
+        }
       },
     });
 
@@ -21,7 +53,7 @@ const ChartComponent = ({ data }) => {
     return () => {
       chartInstance.destroy();
     };
-  }, [data]); // Re-run the effect if `data` changes
+  }, [data, type]); // Re-run the effect if `data` or `type` changes
 
   return <canvas ref={chartRef} />;
 };
