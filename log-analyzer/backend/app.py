@@ -51,8 +51,21 @@ def detect_anomalies(log_df):
         return anomalies.to_dict(orient='records')
     return []
 
+"""
+# Helps to summarize logs to fit expected format for processing and OPENAI
+def summarize_logs(logs):
+    # Example of simple pre-processing to extract key events from logs
+    summary = []
+    for log in logs:
+        # Extract only important fields like timestamp, error type, and key metrics
+        summary.append(f"{log['timestamp']}: {log['event_type']} ({log['count']} occurrences)")
+    return "\n".join(summary)
+"""
+
 # Using OpenAI for Log Analysis and Recommendations
 def analyze_logs_with_openai(logs):
+    """Pre-process logs to extract key points (reduce input size)"""
+   # processed_logs = summarize_logs(logs)  # Assume you have a function to summarize
     prompt = f"Analyze the following logs and provide insights:\n{logs}"
 
     try:
@@ -69,6 +82,10 @@ def analyze_logs_with_openai(logs):
 
         # Extract the response text
         return response.choices[0].message['content'].strip()
+    
+    #except openai.error.RateLimitError:
+       #print("OpenAI API request failed: Rate limit exceeded. Please check your plan and quota.")
+        #return "Failed to analyze logs: Rate limit exceeded. Please upgrade your plan or check your quota."
 
     except Exception as e:
         print(f"OpenAI API request failed: {e}")
